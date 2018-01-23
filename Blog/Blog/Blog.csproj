@@ -67,6 +67,14 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Image\logImage\1-141103154406263-lp.jpg" />
+    <Content Include="Image\logImage\1-141103155AS52.jpg" />
+    <Content Include="Image\logImage\1-1501010TK5394.jpg" />
+    <Content Include="Image\logImage\1-161126122T0b1.jpg" />
+    <Content Include="Image\logImage\161I42A6-0.jpg" />
+    <Content Include="Image\logImage\23512T1C-0.jpg" />
+    <Content Include="Image\logImage\defaultpic.jpg" />
+    <Content Include="Image\logImage\s.jpg" />
     <Content Include="JS\getArticle.js" />
     <Content Include="JS\mf-pattern\.svn\all-wcprops" />
     <Content Include="JS\mf-pattern\.svn\entries" />
@@ -196,7 +204,10 @@
     <Content Include="JS\mf-pattern\img\mF_tbhuabao\.svn\prop-base\btn-bg.gif.svn-base" />
     <Content Include="JS\mf-pattern\img\mF_tbhuabao\.svn\text-base\btn-bg.gif.svn-base" />
     <None Include="packages.config" />
+    <Content Include="JS\paging.js" />
+    <Content Include="log.html" />
     <Content Include="SQLData\GetArticle.ashx" />
+    <Content Include="SQLData\NotesPageList.ashx" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -310,6 +321,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SQLData\GetArticle.ashx.cs">
       <DependentUpon>GetArticle.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="SQLData\NotesPageList.ashx.cs">
+      <DependentUpon>NotesPageList.ashx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>

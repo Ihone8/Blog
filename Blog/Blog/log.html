@@ -1,0 +1,108 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>神仙博客</title>
+    <link href="CSS/style.css" rel="stylesheet" />
+    <script src="JS/jquery-3.2.1.min.js"></script>
+    <script src="JS/paging.js"></script>
+</head>
+<body>
+    <figure>
+        <p>
+            欢迎光临神仙博客网站
+            <a href="javascript:;" class="right">关于我们</a>
+            <a href="index.html" class="right">Home</a>
+        </p>
+    </figure>
+    <div class="header">
+        <img src="Image/logo.jpg" alt="神仙博客网站" width="170" height="60" class="left" />
+        <p><a href="index.html">神仙博客网站</a></p>
+        <p><a href="index.html;">关注互联网和搜索引擎的神仙博客网站</a></p>
+    </div>
+    <nav id="nav">
+        <ul>
+            <li>
+                <a href="../index.html">网站首页</a>
+            </li>
+            <li>
+                <a href="javascirpt:;" target="_blank" title="前端学习">前端学习</a>
+                <ul>
+                    <li><a href="javascirpt:;">HTML/CSS</a></li>
+                    <li><a href="javascirpt:;">jQeruy</a></li>
+                    <li><a href="javascirpt:;">HTML5</a></li>
+                    <li><a href="javascirpt:;">CSS3</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="javascirpt:;" target="_blank" title="网站运营">后端学习</a>
+                <ul>
+                    <li><a href="javascirpt:;">PHP</a></li>
+                    <li><a href="javascirpt:;">Java</a></li>
+                </ul>
+            </li>
+            <li><a href="javascirpt:;" target="_blank" title="认真学习">学习资料</a></li>
+            <li id="nav_current"><a href="log.html" title="心得笔记">心得笔记</a></li>
+            <li><a href="../index/message.html" title="留言板">Blog留言</a></li>
+        </ul>
+    </nav>
+    <div class="lgo_mian">
+        <div class="log_mian_content">
+            <div class="left_log_content left">
+                <div class="log_content">
+                    <h2>
+                        您现在的位置：
+                        <a href="index.html">首页</a>
+                        &nbsp;>&nbsp;
+                        <a href="log.html">心得笔记</a>
+                        &nbsp;>&nbsp;
+                    </h2>
+                    <ul id="newBloglist"></ul>
+                </div>
+                <div class="log_pagging">
+                    <div id="page" class="page_div"></div>
+                </div>
+            </div>
+            <div class="right_log_content right"></div>
+        </div>
+    </div>
+    <script>
+        $(function () {
+            pagenum = 3;
+            $.ajax({
+                url: "../SQLData/NotesPageList.ashx",
+                type: "Get",
+                dataType: "Json",
+                data: { "pageindex": 1, "pagenum": pagenum },
+                success: function (data) {
+                    //console.log(data);
+                    $.each(data.result, function (i, obj) {
+                        $("#newBloglist").append("<li><p class='log_title'><a href='#' title='" + obj.NoteTtile + "'>" + obj.NoteTtile + "</a></p> <p class='log_time'>发布时间：" + data_string(obj.NoteTime) + " 作者：Json 分类：<a href='log.html'>心得笔记</a></p><a href='#' class='imgdow' title='" + obj.NoteTtile + "'><img src='Image/logImage/" + obj.NotesImage + ".jpg' alt='' /></a><p class='log_pcon'>" + obj.NoteContent.substring(1, 200) + "<a href='#'>详细信息</a></p><div class='log_line'></div></li>");
+                    })
+                    $("#page").paging({
+                        PageNo: 1,
+                        totalPage: data.pageCount,
+                        callback: function (num) {
+                            $("#newBloglist").html("");
+                            $.getJSON("../SQLData/NotesPageList.ashx", { "pageindex": num, "pagenum": pagenum }, function (data) {
+                                $.each(data.result, function (i, obj) {
+                                    $("#newBloglist").append("<li><p class='log_title'><a href='#' title='" + obj.NoteTtile + "'>" + obj.NoteTtile + "</a></p> <p class='log_time'>发布时间：" + data_string(obj.NoteTime) + " 作者：Json 分类：<a href='log.html'>心得笔记</a></p><a href='#' class='imgdow' title='" + obj.NoteTtile + "'><img src='Image/logImage/" + obj.NotesImage + ".jpg' alt='' /></a><p class='log_pcon'>" + obj.NoteContent.substring(1, 200) + "<a href='#'>详细信息</a></p><div class='log_line'></div></li>");
+                                })
+                            })
+                        }
+                    })
+                }
+            })
+            function data_string(str) {
+                var d = eval('new ' + str.substr(1, str.length - 2));
+                var ar_date = [d.getFullYear(), d.getMonth() + 1, d.getDate()];
+                for (var i = 0; i < ar_date.length; i++) ar_date[i] = dFormat(ar_date[i]);
+                return ar_date.join('-');
+
+                function dFormat(i) { return i < 10 ? "0" + i.toString() : i; }
+            }
+
+        })
+    </script>
+</body>
+</html>

@@ -1,123 +1,126 @@
---�����������ͱ� ArticleType
-insert into ArticleType values('ǰ�˿���'),('��̨����')
-insert into ArticleType values('�ĵñʼ�')
---�������·�����
-insert into Article values('0024eaa1-69c7-408e-aca9-2ac939f81f3b','09505dfb-c3f8-4585-af57-333ab7e8a7ad',GETDATE(),'dedecmsר��ڵ�ID���ܳ����ظ�����Ľ������',1,'����ר���ʱ���ָ��ر������˵����飬5���ڵ㣬����һ���ڵ��г���ID�ظ���������֮��д�����ݿ⣻Ϊ���о���һ����ԭ����ȥ�ظ����ܡ�
+﻿use Blog
+go
+--插入文章类型表 ArticleType
+insert into ArticleType values('前端开发'),('后台开发')
+insert into ArticleType values('心得笔记')
+select * from ArticleType
+--插入文章发表表
+insert into Article values('0024eaa1-69c7-408e-aca9-2ac939f81f3b','09505dfb-c3f8-4585-af57-333ab7e8a7ad',GETDATE(),'dedecms专题节点ID不能出现重复问题的解决方法',1,'在做专题的时候发现个特别郁闷人的事情，5个节点，任意一个节点中出现ID重复均被过滤之后写入数据库；为此研究了一番，原来有去重复功能。
 
-�����������׾������´��룺
+最后发现罪魁祸首就是以下代码：
 
 if(is_array($ids)) { foreach($ids as $mid) { $mid = trim($mid); if($mid=="") continue; if(!isset($arcids[$mid])) { if($okids=="") { $okids .= $mid; } else { $okids .= ",".$mid; } $arcids[$mid] = 1; } } }
 
-s����foreachѭ���У��и�isset���жϣ������ڴ˹�����һЩ�ظ�ID�� 
-��֪��DEDE $arcids���������������õģ�����foreachѭ��֮���Ȼ�ḳ�����нڵ��ID���뵽�����С� 
-Ϊ�ˣ��ҵĽ�������������ģ� 
-���Ƚ�$ids��������������ȥ�ظ�������
+s其中foreach循环中，有个isset的判断，就是在此过滤了一些重复ID； 
+不知道DEDE $arcids这个变量是如何设置的，经过foreach循环之后既然会赋予所有节点的ID均入到数组中。 
+为此，我的解决方法是这样的： 
+首先将$ids这个数组变量进行去重复处理：
 
 $ids = array_unique($ids);
 
-֮��isset����is_array�ж��Ƿ������� 
-�����Ĵ������£�
+之后将isset改用is_array判断是否是数组 
+完整的代码如下：
 
 $ids = array_unique($ids); if(is_array($ids)) { foreach($ids as $mid) { $mid = trim($mid); if($mid=="") continue; if(!is_array($arcids[$mid])) { if($okids=="") { $okids .= $mid; } else { $okids .= ",".$mid; } $arcids[$mid] = 1; } } }
 
-��֪����˸����Ƿ���������������á���������Ҷ��ָ�̣�',null,null,0)
-insert into Article values('00258f77-0efe-4a22-82cb-c7a01b981cd1','09505dfb-c3f8-4585-af57-333ab7e8a7ad',GETDATE(),'֯��dedecms��������Զ��ͼƬʵ��ͼƬ���ػ��������',1,'DEDEͼƬ���ػ�ʧЧ����Ҫԭ��
-�������ϵ����л����н�����fsockopen()����
+不知道如此更改是否会有其他“副作用”！还望大家多多指教！',null,null,0)
+insert into Article values('00258f77-0efe-4a22-82cb-c7a01b981cd1','09505dfb-c3f8-4585-af57-333ab7e8a7ad',GETDATE(),'织梦dedecms不能下载远程图片实现图片本地化解决方法',1,'DEDE图片本地化失效的主要原因：
+服务器上的运行环境中禁用了fsockopen()函数
 
-�������һ��
+解决方案一：
 
-����fsockopen()�ĵط���stream_socket_client()�������档
+在用fsockopen()的地方用stream_socket_client()函数代替。
 
-�����޸ĵط��� /include/dedehttpdown.class.php ��507��
+具体修改地方是 /include/dedehttpdown.class.php 第507行
 
 $this->m_fp = @fsockopen($this->m_host, $this->m_port, $errno, $errstr,10);
 
-�滻Ϊ
+替换为
 
 $this->m_fp = @stream_socket_client($this->m_host . ;'' . $this->m_port, $errno, $errstr,10);
 
-�����������
+解决方案二：
 
-�༭php.ini���ҵ�disable_functions�������е�fsockopenȥ��
+编辑php.ini，找到disable_functions，把其中的fsockopen去掉
 
-�����������޷��������ô������php.ini�����ļ���allow_url_fopen�Ƿ��ǿ���״̬��
+若上述方案无法解决，那么分析下php.ini配置文件中allow_url_fopen是否是开启状态；
 
-������˲�����ܰ��ʾ���������һ����ҵ��վ����������˲��͵� dedecms Ƶ�������ɣ������кܶ����ҵģ��Ŷ��',null,null,0),
-('0052cd27-87c1-4afa-9a91-ed7969283af0','09505dfb-c3f8-4585-af57-333ab7e8a7ad',GETDATE(),'discuz�̳̣�SEO�Ż�ͨ������',1,'��������ʲô������̳���Ƕ�Ҫ������̳���ܺ����ݵ�ͬʱ�������̳�ĸ�����SEO���ã��Ͼ�һ�����̳�󲿷�����������Դ����������ģ�
-���Խ����discuz��վ��������һ��SEO���÷����ָ����
-ע�⣺����˵������̳SEO�Ļ������ã�����̳��¼���ؼ���������û��ֱ�����õġ�SEO�������þͺñ�һ���������ã���SEO�Ż����൱�������ֵķ��ӣ���Ȼ�������ǻ�����������ϣ������ܹ�����SEO���õ����á�
+杨雨个人博客温馨提示：如果你想搭建一个企业网站，到杨雨个人博客的 dedecms 频道看看吧，这里有很多的企业模板哦！',null,null,0),
+('0052cd27-87c1-4afa-9a91-ed7969283af0','09505dfb-c3f8-4585-af57-333ab7e8a7ad',GETDATE(),'discuz教程：SEO优化通用设置',1,'不管是做什么样的论坛我们都要完善论坛功能和内容的同时，兼顾论坛的各方面SEO设置，毕竟一般的论坛大部分流量还是来源于搜索引擎的，
+所以今天给discuz建站的新手们一点SEO设置方面的指导。
+注意：今天说的是论坛SEO的基本设置，对论坛收录、关键词排名是没有直接作用的。SEO基本设置就好比一辆赛车配置，而SEO优化则相当于赛车手的发挥，当然，配置是基本的条件。希望大家能够理解SEO设置的作用。
 
-���ˣ��������⣬��ô������Ҫ��discuz��̨��Щ�ط����������أ���Ҫ�����¼���
+好了，进入正题，那么我们需要在discuz后台哪些地方进行设置呢？主要有以下几点
 
-1��α��̬����
+1、伪静态设置
 
-2����̳���⡢�ؼ��ʡ���������
+2、论坛标题、关键词、描述设置
 
-3����顢���ӵı����ʽ
+3、板块、帖子的标题格式
 
-4�������������ã��ؼ���������
+4、关联链接设置（关键词内链）
 
-5����վ��ͼ
+5、网站地图
 
-������һһ���⣬
+接下来一一讲解，
 
-1������α��̬��Ҫ����дƪ�̳̣���Ϊ��ͬ���������÷�ʽ��ͬ��2����̳�ꡢ�ؼ��ʡ���������
-��ȫ�֡���վ����Ϣ��
+1、对于伪静态需要另外写篇教程，因为不同服务器设置方式不同。2、论坛标、关键词、描述设置
+“全局——站点信息”
 
-discuz seo����
-
-
-ע�⣺վ������ֱ��д�����վ���������̣���Ҫ�ӹؼ��ʣ�����ؼ��ʲ�������ӣ������������ᵼ��ȫվ�����ӱ��������
-��ϸ�ı��������ڡ�ȫ�֡���SEO���á���������������ҳ�ı��⡢�ؼ�������������ҳ������������Ҫ����Ϊ��غ���̳���ؼ���������
-
-discuz seo����
+discuz seo设置
 
 
-ע�⣺��վ����ǰ���뿼�Ǻ��Լ��ı��⡢�ؼ��ʡ�����дʲô����Ϊ���ߺ��ʱ���ڸĶ���Щ����վӰ��Ƚϴ������������Ϊ�����վ��û��׼���ã��Ӷ��ӳ������ڡ�
-3����顢���ӵı����ʽ����
-�������ֱ�Ӳο�ǧ����̳�����ã����ǱȽϺ�����
+注意：站点名称直接写你的网站名，尽量短，不要加关键词，标题关键词不在这里加，如果这里过长会导致全站的帖子标题过长。
+详细的标题设置在”全局——SEO设置“，在这里设置首页的标题、关键词与描述，首页的设置至关重要，因为这关乎论坛主关键的排名。
 
-discuz seo����
-
-��������ҳ��
-
-discuz��������ҳ
+discuz seo设置
 
 
-ע�⣺ÿ�����Ҫ����������ò�Ҫ����ͳһ�ģ����ڷ�����������ã�{fgroup} �C {bbname}
-����һ����������ã�{forum} �C {fup} �C {bbname} �C {page}
-�����Ż�����԰����ͬ��
-4����������
-discuz��������
+注意：网站上线前，请考虑好自己的标题、关键词、描述写什么，因为上线后短时间内改动这些对新站影响比较大，搜索引擎会认为这个网站还没有准备好，从而加长考核期。
+3、板块、帖子的标题格式设置
+这里可以直接参考千酷论坛的设置，还是比较合理的
+
+discuz seo设置
+
+帖子内容页：
+
+discuz帖子内容页
 
 
-�������ӵ����ã��������г����������õĴʵ�ʱ����Զ������������һ��ê�ı����������������õĵ�ַ������ͬһ�������ظ���������ʵĻ����Զ�ֻ�е�һ�δʱ�����ê�ı���
-ע�⣺���ｨ�������ã���Ϊ����������û��ʲô�û�������Ϊ�û�ȥ��������ê�ı��ļ��ʲ���
-5����վ��ͼ
-������վ��ͼ����û��Ҫ�ֶ�ȥ���ɣ�����ֻ����Ӧ�������ҡ���վ��ͼ����桰��װ���ɣ����Զ�ʵʱ������վ��ͼ����������������֩�����ȡ��',null,null,0)
-insert into Article values('077fcebd-b3de-4164-b1b6-9979ad28f005','09505dfb-c3f8-4585-af57-333ab7e8a7ad',GETDATE(),'discuz�̳̣�������£������ȡ��������ؿ�������ʵ��',1,'�������һ��discuz ���ο��� discuz x ������£������ȡ��������ؿ�������ʵ��.
-
-discuz x ������ƣ����ܴ�Ҳ�̫�˽⡣��Ҳ���˽⣬��ȥ�о���Ȼ������ɹ��������ң�ϣ������ڿ����мӿ��ٶȡ�
-
-Discuz!X�Ļ���֧�����ֻ��淽ʽ��
-
-�����ȶȷֱ�Ϊ��memcache��eaccelerator��xcache��file��sql��
-
-ǰ������ʹ�õ������Ļ��棬�������������Լ��������ã�ֻ��Ҫconfig_global.php������CONFIG MEMORYһ�ξͺ��ˣ�
+注意：每个板块要区别开来，最好不要设置统一的；对于分区，标题就用：{fgroup} – {bbname}
+对于一个板块标题就用：{forum} – {fup} – {bbname} – {page}
+对于门户、家园设置同理
+4、关联链接
+discuz关联链接
 
 
-����������ԭ��֧�ֵģ���Ҫconfig_global.php������CONFIG CACHEһ�Σ����˸о�sql�Ļ��һЩ����Ϊ�õ����ڴ滺�棬��������鿴�Ϳ������ԣ�file���ļ����棬�ô��ǿ�����ʱ�򿪿��������Է��㡣
+关联链接的作用：当帖子中出现你所设置的词的时候会自动给这个词添加一个锚文本，链接向你所设置的地址，并且同一个帖子重复出现这个词的话，自动只有第一次词被设置锚文本，
+注意：这里建议少设置，因为这样的内链没有什么用户需求，因为用户去点击你这个锚文本的几率不大，
+5、网站地图
+对于网站地图我们没必要手动去生成，我们只需在应用中心找”网站地图插件版“安装即可，会自动实时生成网站地图，有利于搜索引擎蜘蛛的爬取。',null,null,0)
+insert into Article values('077fcebd-b3de-4164-b1b6-9979ad28f005','09505dfb-c3f8-4585-af57-333ab7e8a7ad',GETDATE(),'discuz教程：缓存更新，缓存读取，缓存加载开发完整实例',1,'今天分享一个discuz 二次开发 discuz x 缓存更新，缓存读取，缓存加载开发完整实例.
+
+discuz x 缓存机制，可能大家不太了解。我也不了解，才去研究，然后分享成功结果给大家，希望大家在开发中加快速度。
+
+Discuz!X的缓存支持五种缓存方式，
+
+其优先度分别为：memcache，eaccelerator，xcache，file，sql。
+
+前三种是使用第三方的缓存，服务器环境得自己单独配置，只需要config_global.php里配置CONFIG MEMORY一段就好了，
 
 
-���ˣ�������˵˵��ôʹ�û��棬���һ����վ��һЩ�����ǲ������䶯������ʹ��Ƶ���ģ��Ϳ����û����ˡ�
+最后的两种是原生支持的，需要config_global.php里配置CONFIG CACHE一段，个人感觉sql的会好一些，因为用的是内存缓存，但不方便查看和开发调试，file是文件缓存，好处是可以随时打开看看，调试方便。
 
-������̳��飬��Ŀ����ȡ����Ҫ����һ���µĻ�������Ҫ��ô���أ�
 
-������Ҫ����һ������[��¼QQ�����]��Ȼ����Ҫ�������������
+好了，现在来说说怎么使用缓存，如果一个网站有一些数据是不经常变动，但又使用频繁的，就可以用缓存了。
 
-��Ҫ���¹���ʵ�ֻ��棺
+比如论坛版块，栏目分类等。如果要增加一个新的缓存数据要怎么办呢？
 
-1.�½������ļ�Ϊ source\function\cache\cache_qq.php
+比如我要开发一个功能[记录QQ号码的]，然后需要缓存号码总数。
+
+需要以下过程实现缓存：
+
+1.新建缓存文件为 source\function\cache\cache_qq.php
 
 <?php
 
@@ -143,58 +146,58 @@ savecache('', $data);
 
 ?>
 
-���溯����Ҫ���ļ��� qq һ�ã���̨���Զ����ɻ���ġ�
+缓存函数名要和文件名 qq 一置，后台会自动生成缓存的。
 
-discuz qq���������ļ�д���ˡ�
+discuz qq函数缓存文件写好了。
 
-2.��������ͨ�����ǿ�����discuz ��Ҽ��ػ���
+2.下面我们通过我们开发的discuz 外挂加载缓存
 
-/*���ػ����ļ�*/
+/*加载缓存文件*/
 require_once libfile('');
 
-/*���ػ�������*/
+/*加载缓存名称*/
 loadcache('');
 
-/*��ӡ������*/
+/*打印缓存结果*/
 print_r($_G['']['']);
 
-,�ã�������ض�ȡ����ˡ�
+,好，缓存加载读取完成了。
 
-����Զ����»����أ�
+如何自动更新缓存呢？
 
 updatecache('');
 
-//ִ�ж�����»���
+//执行多个更新缓存
 
 updatecache(array('','')); 
 
-������ʵ���˻����Զ����أ��Զ����£���ȡ����������д�ò�����ϸ������ͷ��������',null,null,0)
-insert into Article values('0a85eeab-a555-4ea7-a176-38d1afaac19e','09505dfb-c3f8-4585-af57-333ab7e8a7ad',getdate(),'��վ�����ʸߵ��Ż�����',1,'���ĸ���ҷ���һ����վ�����ʸߵ��Ż���ʵ����ÿ���û������������ṩ��Ҫ��SEO���ݣ����ǿ���ͨ���ٶ�վ��ƽ̨����վ��̨������ɸѡ����Щ�û����ݣ��Ϳ���֪����ʲôԭ��������վ�����ʸߵ����⣡
-��һ���û������վҳ�棬û�е���κ����ӣ�����վ�������ʾ��ǰٷ�֮�١�ͨ��ҳ���Ż���������ҳ�������ʣ�Ҳ��������ҳ��������
-����ͨ��ĳ��������վ�İ��������� 
-�����ҵ�һ�����������͵�ʹ�÷�������ҳ�棬�������ҳ������ν��������ʵġ�
-��Ҫ�����㣺
-1 .��������Ҫ�ܺá�
-����Ҫ���û��Ƕȳ���������û������⡣������ݲ�����������⣬���������κ����ӣ���Ϊ���������ݲ�������Ҫ�� ��
-2 .�ؼ���Խ���û��������Խ��׼��
-������վ�ľ���������Ȼ�����л������ͣ�����û�и��û����ʹ�÷��������⡣�����ڶ�������վ����Ȼ���������£�������������������������ӣ��û����鲢���á���������Ҳ���ܽ���û����⡣
-����֮���������ݷ���ѡ���ͣ���ȻҲ�д��������ݣ������û���Ҫ�ĵط�����Ҫ������������������Ҳ��Ϊ�˽��������ʡ����û�����Ҫ��ʱ�����������֡����Եģ����Եģ�1������Ҫ�ܽ����������ݡ�������ԣ�
-ʲôʱ����������Ҫ������ط��費��Ҫ���͡�2��ҳ��������רҵ�����ʱ�򣬱�������������Ϊ�û���֪�����רҵ����ɶ��˼��
-����Ķ�  һ��Ҫ������Ķ������û����Ƽ���
+这样就实现了缓存自动加载，自动更新，读取方法。可能写得不够详细。今天就分享到这里。',null,null,0)
+insert into Article values('0a85eeab-a555-4ea7-a176-38d1afaac19e','09505dfb-c3f8-4585-af57-333ab7e8a7ad',getdate(),'网站跳出率高的优化方案',1,'本文给大家分享一个网站跳出率高的优化的实例，每个用户都会向我们提供重要的SEO数据，我们可以通过百度站长平台和网站后台，分析筛选出这些用户数据，就可以知道是什么原因导致了网站跳出率高的问题！
+当一个用户点击网站页面，没有点击任何连接，那网站的跳出率就是百分之百。通过页面优化，降低了页面跳出率，也就提升了页面质量。
+我们通过某个精油网站的案例来分析 
+我们找到一个《护发精油的使用方法》的页面，看看这个页面是如何降低跳出率的。
+主要有两点：
+1 .内容质量要很好。
+内容要从用户角度出发，解决用户的问题。如果内容不能他解决问题，他不会点击任何连接，因为这样的内容不是他想要的 。
+2 .关键词越长用户的需求就越精准。
+案例网站的竞争对手虽然内容有护发精油，但并没有给用户解决使用方法的问题。分析第二名的网站，虽然有类似文章，但是文章里面大量的文字连接，用户体验并不好。而且内容也不能解决用户问题。
+精油之恋网：根据发质选择精油，虽然也有大量的内容，这是用户需要的地方，就要做内链。最内链解释也是为了降低跳出率。让用户有需要的时候，有内链出现。油性的，干性的，1、内容要能解决标题的内容。（相关性）
+什么时候做内链，要看这个地方需不需要解释。2、页面里面有专业术语的时候，必须做内链。因为用户不知道你的专业词是啥意思。
+相关阅读  一定要做相关阅读，给用户做推荐。
 
-��վ�����и����Ͱ����߽���Ⱥ ���û��������ʺܸߣ����ǲ�Ը�⵽��վ���滨�ܳ�ʱ���ҳ����ݡ��������������ʡ����û����ܼ�ʱת������û���������վ���û����ή�͵ġ����������������ܰ���Щʲô���Ӷ�û�е�����û���������qqȺ���档�ٶȸ��������ʣ�ҳ��ƽ��ͣ��ʱ�䣬����� ��Щ���ж�ҳ������ݡ��������ã�����Ҫ�����ۻ���Դ���������������û���Դ������һЩ����Ϣ��ֵ�����£�ֻҪ���Ƿ����������µ�qqȺ���棬���Ǿ��ܰ�qqȺ���������뵽��վ���棬����վ���û����뵽qqȺ���棬��������������������֮һ��
-ϡȱ��Խ�ߣ����õ�Ȩ��Խ�ߡ�
-�Ż��Ĺ�����3������
-1����Ͳ��ҳ�������Ż�  ������������ץȡ�Ļ���
-2���������������Ż�  ��ͼ�Ļ�����Ƶ ��������  ���ʲô����������ʲô�������ݡ���Ϣվ��ҽ��վҪ������Ϊ����ͼƬΪ������Ҫͨ��ҳ����ͼ�����û��ɽ���ԭ����ʲô��
-3����������ǰ2�ֵĻ����ϣ�  Ӱ��ؼ����������㷨��200�����Ҫ�������ա�
-����Ķ� ��������Ҫ�����û������������� Ϊʲô��һ��ҳ�������Ķ���6�����ڶ���ҳ����3���������ǿ����ֶ����ӣ�����ĳ�β���Ż��Ǹ�����������������û�������ٶ��䶯��һ��һ�ν��е���������һ���µ���һ�Σ����˽����ݵ��˶���֪���������ϵͳ��ѧϰ���ݷ�����
-˿�ؾ������������Ķ���3�� �������͵���� �Ķ���6������˿�ؾ��͵��û��������������ǿ������Ӹ��ࡣ',null,null,0),
-('0c3ca9fb-241f-4026-a1ee-4efaead06ebe','09505dfb-c3f8-4585-af57-333ab7e8a7ad',GETDATE(),'�����ٶ�֩�루BaiDuspider��IP�μ���IP������',1,'�����������Ϸ���������վ��iis��־������ͳ�Ƴ��˳����İٶ�֩��baiduspider ��IP�Σ����ܽ����˵�˵����������ڵ�ʵ������������˸���IP�εĴ�����Ϣ��
- �Ǿ���ʲô��Baiduspider�أ����ٷ�˵����
-Baiduspider�ǰٶ����������һ���Զ��������������Ƿ��ʻ������ϵ���ҳ�������������ݿ⣬ʹ�û����ڰٶ���������������������վ�ϵ���ҳ�����ٶȹٷ���
+网站下面有个精油爱好者交流群 新用户的跳出率很高，他们不愿意到网站里面花很长时间找出内容。这样降低跳出率。新用户不能及时转变成老用户，这样网站的用户量会降低的。我们这样做，就能把那些什么链接都没有点击的用户，能留在qq群里面。百度根据跳出率，页面平均停留时间，浏览量 这些来判断页面的数据。数据有用，我们要懂得累积资源，当您有这样的用户资源，整理一些最信息价值的文章，只要我们发这样的文章到qq群里面，我们就能把qq群的流量引入到网站里面，把网站的用户引入到qq群里面，这了是提升排名的因素之一。
+稀缺性越高，所得的权重越高。
+优化的工作分3个部分
+1、最低层的页面代码的优化  这是搜索引擎抓取的基础
+2、体验和需求方面的优化  是图文还是视频 还是文字  解决什么样的需求，用什么样的内容。信息站、医疗站要以文字为主，图片为辅。还要通过页面点击图，看用户成交的原因是什么。
+3、熟练掌握前2种的基础上，  影响关键词排名的算法有200多项，都要熟练掌握。
+相关阅读 这里我们要根据用户的需求来调配 为什么第一个页面的相关阅读有6个，第二个页面有3个，这里是可以手动添加，这里的长尾词优化是根据情况来定，根据用户需求多少而变动。一周一次进行调整，还是一个月调整一次，不了解数据的人都不知道如何做，系统的学习数据分析。
+丝柏精油这里的相关阅读有3个 护发精油的相关 阅读有6个。当丝柏精油的用户需求增长后，我们可以增加更多。',null,null,0),
+('0c3ca9fb-241f-4026-a1ee-4efaead06ebe','09505dfb-c3f8-4585-af57-333ab7e8a7ad',GETDATE(),'常见百度蜘蛛（BaiDuspider）IP段及各IP的意义',1,'花了三个晚上分析几个网站的iis日志，终于统计出了常见的百度蜘蛛baiduspider 的IP段，并总结先人的说法，结合现在的实际情况，分析了各个IP段的大致信息！
+ 那究竟什么是Baiduspider呢？（官方说法）
+Baiduspider是百度搜索引擎的一个自动程序，它的作用是访问互联网上的网页，建立索引数据库，使用户能在百度搜索引擎中搜索到您网站上的网页。（百度官方）
 
-�����ٶ�֩�루BaiDuspider��  IP��
+常见百度蜘蛛（BaiDuspider）  IP：
 123.125.71.15
 123.125.71.18
 123.125.71.21
@@ -278,7 +281,7 @@ Baiduspider�ǰٶ����������һ���Զ��������������Ƿ��ʻ������ϵ���ҳ�����������
  
 61.135.168.55
 180.76.5.99
-�����ٶ�֩�루BaiDuspider��  IP�Σ�
+常见百度蜘蛛（BaiDuspider）  IP段：
 180.76.5.*
 180.76.6.*
 123.125.68.*
@@ -304,22 +307,22 @@ Baiduspider�ǰٶ����������һ���Զ��������������Ƿ��ʻ������ϵ���ҳ�����������
 61.135.145.*
 61.135.146.* 
 
-���϶��������Բ���ģ�',null,null,0)select * from Article
-insert into Article values('1026c9ff-2033-434a-996a-a7deab87440c','09505dfb-c3f8-4585-af57-333ab7e8a7ad',GETDATE(),'PHPCMS V9��վ��̨����PHPSSO�������',1,'SSOӢ��ȫ��Single Sign On�������¼��SSO������������ڶ����ͬ��Ӧ��ϵͳ�У��û�ֻ��Ҫ��¼һ�ξͿ��Է�������ͨ�ŵ�Ӧ��ϵͳ��
+以上都是我亲自测过的！',null,null,0)select * from Article
+insert into Article values('1026c9ff-2033-434a-996a-a7deab87440c','09505dfb-c3f8-4585-af57-333ab7e8a7ad',GETDATE(),'PHPCMS V9网站后台功能PHPSSO管理详解',1,'SSO英文全称Single Sign On，单点登录。SSO解决的问题是在多个不同的应用系统中，用户只需要登录一次就可以访问所有通信的应用系统。
  
 
-�������磬�Ұ�װ��PHPCMS����վ���ݹ���ϵͳ��Discuz����̳���򣬻�Ա��һ����վ�ϵ�¼������һ����վ�Ϳ���ֱ�ӷ��ʣ������ظ���¼�������SSO��ְ�ܣ���PHPCMS���ṩ��SSO�����������PHPCMS��վ��̨�е�PHPSSO��
-
- 
-
-����PHPCMS�ڰ�װ�ɹ�֮����PHPSSO����������һ��Ӧ�ó������ʽ���֣���PHPSSO������Կ�����Ӧ�õĻ�Ա������Ϣ��Ӧ��ͨ������ȵȡ�
+　　比如，我安装了PHPCMS的网站内容管理系统和Discuz的论坛程序，会员在一个网站上登录，在另一个网站就可以直接访问，无需重复登录，这就是SSO的职能，在PHPCMS里提供的SSO解决方案就是PHPCMS网站后台中的PHPSSO。
 
  
 
-�������ǽ�PHPCMS��������ϵͳ�������Ͼ���Ҫ��Ӧ�ù�����ϵͳ�����н������ò����������Discuz���ϣ������ض��Ĺ���ȥʹ�ã���Discuz�У�����SSO���������Ucenter���������ֻ������PHPSSO��Ucenter��Ӧ��ͨ�Ź������Ϳ���ʵ������ϵͳ���û�������',null,null,0),
-('1470bec3-5cb1-4454-92dd-ec8c7756adb6','09505dfb-c3f8-4585-af57-333ab7e8a7ad',GETDATE(),'phpcms v9�б�ҳʵ��������ͼ����ʾ����ͼ�ķ���',1,'phpcms v9�б�ҳʵ��������ͼ����ʾ����ͼ�ķ���
-ʹ��php��if�жϣ�{if $r[thumb]}... ...{/if}
-����ʾ��:
+　　PHPCMS在安装成功之后，在PHPSSO里面他就以一个应用程序的形式出现，在PHPSSO里面可以看到此应用的会员基础信息，应用通信情况等等。
+
+ 
+
+　　我们将PHPCMS与其他的系统进行整合就需要在应用管理和系统配置中进行设置操作，比如和Discuz整合，就有特定的功能去使用，在Discuz中，他的SSO解决方案是Ucenter，因此我们只需整合PHPSSO和Ucenter的应用通信管理，就可以实现两个系统的用户互动。',null,null,0),
+('1470bec3-5cb1-4454-92dd-ec8c7756adb6','09505dfb-c3f8-4585-af57-333ab7e8a7ad',GETDATE(),'phpcms v9列表页实现文章有图则显示缩略图的方法',1,'phpcms v9列表页实现文章有图则显示缩略图的方法
+使用php的if判断：{if $r[thumb]}... ...{/if}
+代码示例:
 {pc:content action="lists" catid="$catid" num="8" order="id DESC" page="$page"}
 <ul>
 {loop $data $r}
@@ -337,9 +340,9 @@ insert into Article values('1026c9ff-2033-434a-996a-a7deab87440c','09505dfb-c3f8
 <p>{str_cut(strip_tags($r[description]), 188)}</p>
 {/if}
 <span>
-<small>���ڣ�{date(''Y-m-d'',$r[inputtime])}</small>
+<small>日期：{date(''Y-m-d'',$r[inputtime])}</small>
 {php $keywords = explode('',$r[keywords]);}
-<small>�ؼ��ʣ�{loop $keywords $keyword}<a href="{APP_PATH}index.php?m=content&c=tag&catid={$catid}&tag={urlencode($keyword)}">{$keyword}</a>{/loop}</small>
+<small>关键词：{loop $keywords $keyword}<a href="{APP_PATH}index.php?m=content&c=tag&catid={$catid}&tag={urlencode($keyword)}">{$keyword}</a>{/loop}</small>
 </span>
 </div>  
 </li>
@@ -347,3 +350,654 @@ insert into Article values('1026c9ff-2033-434a-996a-a7deab87440c','09505dfb-c3f8
 </ul>
 <div>{$pages}</div>
 {/pc}',null,null,0)
+--插入心得笔记表数据
+insert into Notes values('0868e929-b6b3-43f5-bdac-d682a91f8c99','1-161126122T0b1','百
+度云服务器BCH使用后的感受',GETDATE(),'09505dfb-c3f8-4585-af57-333ab7e8a7ad',3,'这是一篇很没技术含量的文章，在标题就有体现是使用感受而不是测评。
+在百度云的广告轰炸下，我尝试着买了BCH来作测试，广告中光环下的产品总是好的，实际使用下来是奔溃的。
+百度云产品跟阿里相比差距太大了，用下来还不如腾讯云。
+事情是这样的：
+那天我购买了BCH以后，打开控制台，找了足足30分钟，也没找到BCH的入口。就这一刻，我就意识到自己入坑了，还好只是用来测评的产品。
+百度云控制台界面
+点击图片查看大图
+一看这个控制台，你就知道这个产品肯定没有了解过用户需求的。首屏展现出来给我的东西跟我并没有上面关系。用户需要天天看花了多少钱吗？
+终于我在产品服务里边找到了BCH的入口，点进去以后是这样的：
+于是我创建了主机，开始了测试。
+环境语言支持NGinx/Lighttpd+PHP（5.2-5.4）+mysql，环境和PHP版本可以任意切换，使用伪静态时候，我尝试去找BCH提供的帮助文档，也没找到啥有用的。
+有一个优点是PHP可以开启OPcache缓存加速功能，但是要在PHP5.2+版本。
+BCH主机控制面板界面
+点击查看大图
+当使用到数据库的时候，你会发现数据库用户名，数据库名都特别奇葩，没有任何规律可言，随机来的一串字符串，这样的体验真的好么？
+好不容易配置好以后你会发现，数据库不支持远程连接！官方工单是这样回复的：
+---您好，BCH云虚拟主机的数据库不支持外网访问的，只能通过BCH和控制面板的PHPmyadmin工具连接，谢谢！
+---您好，BCH主机的数据库默认就是不支持外网访问的，另外如需要外网可以连接的数据库您可以选择RDS关系型数据库，以下文档仅供参考，谢谢！https://cloud.baidu.com/doc/RDS/GettingStarted.html')
+insert into Notes values('0916ac36-d240-4e66-a679-1cb3ff4a5721','161I42A6-0','如何让自己成为明星程序员？',GETDATE(),'09505dfb-c3f8-4585-af57-333ab7e8a7ad',3,'Andrew C. Oliver是Open Software Integrators公司的总裁与创始人，公司主要与一些开源公司合作，特别是那些初创公司，致力于为客户提供课程开发、培训、咨询与支持等服务。合作伙伴可以将精力放在核心的业务领域上，公司则为其提供专业的服务。近日，Andrew撰文谈到了对于程序开发者来说，通过什么样的途径可以成为一个明星程序员，并给出了非常中肯的10条建议。
+
+很多开发者会认为要想成为一个明星程序员所需要做的事情一定都是与编程技能相关的，不过这种想法却是完全错误的！优秀的代码是很好，但要想得到更好的工作，获得更高的报酬则需要让更多的人知道你是谁。换句话说，你需要推销自己，下面是我根据这些年的工作经验所得出的成为明星程序员的10个提示。
+
+10.保持谦卑
+很少有开发者具备谦卑这种特质。有时，这意味着你需要做一些很具体的工作。极客的声望来去匆匆，不过请记住，是你的行动才让你收获这种声望的。下一周可能一切都烟消云散了。换句话说，“你并没有什么特殊的”。
+
+9.解决疑难问题，了解相关工具
+花点时间学些大部分人都不了解的工具。你知道哪些很少有人知道/使用/理解的工具，让你比周围的人更具效率呢？比如说，Aspect4j并不适合于每一个人，不过它却适合我。我编写了一些.class文件操作，让其在Tomcat下正常运行，从而替换掉WebSphere，我修复了私有软件的内存泄漏问题。这每一次经历都让我超过了其他人，因为我使用了其他人很少知道的工具来解决重要的难题，而其他人则还在等待着厂商的解决方案。当然还有其他的，不过这些简单的工具却能够解决复杂的问题，让你超越其他开发者。
+
+8.现实一些
+你很喜欢Erlang，不过Erlang的市场却没有那么大。你应该了解多种语言，还应该知道那些“新”的话题，不过请不要说出这种不成熟的话“如果不是Erlang，那我就不打算写代码了”，除非你真正理解了业务问题。这么做也许会让你成为一个狭窄领域的专家，不过即便这样也是有代价的，如果你所掌握的技能过时了，结果就不好玩了。当然了，NoSQL更适合于你自己的一些小项目，不过公司却不会在那种一次性的系统中对其进行投入，这种情况下RDBMS就很适合了。
+
+7.当众发言
+知道如何做演讲，学习如何在公众场合发言。研究一个主题，然后让自己成为这个主题的专家。如果能有一些幽默感的话，在公众场合的演讲效果就会更佳。要想掌握这种技能，你需要花费很多的时间与精力，还要忍受住别人的嘲笑，不过对于工程师来说，如果能用英语向管理者解释清楚问题，同时能就某个主题做出专业的演讲，那么他的薪资一般来说要比那些不具备这种能力的开发者高一些。
+
+如何成为明星程序员?
+
+6.简洁是灵魂
+对于管理来说，那些知道自己在说什么的人常常会给出更简洁的答案。如果回答很长且很复杂，那就意味着回答的人并不知道答案是什么。此外，声调通常与主题的重要性成反比。如果有坏消息来了，那么大家走进办公室时就会轻手轻脚，关上门，然后窃窃私语。请保证你知道自己说的是什么，知道如何总结，如何描述细节，不过请不要事无巨细地进行方方面面的介绍。请确保你的团队成员都经过了深思熟虑，然后清晰地阐明你的哪些观点要好于其他人的。
+
+5.编写自己的文档
+当我参与开发一个项目时，经常会被拉出去参加会议，原因就是他们看了我编写的文档或是演示，而且能够理解，这种情况出现太多次了。我总是一张总览图开始，后面则是对其各种细节的阐述。问题是：对于一个非常忙碌的人来说该知道哪些内容呢？大多数经理们想要知道什么？请按照这个思路编写文档。
+
+4.放眼新技术，着眼实际情况
+尤其是一些年轻的开发者们都喜欢使用新技术。Ruby是我最喜欢的一种编程语言，不过平均来说，Ruby带给我的回报是不如Java的，Ruby的市场也比较小。事实也并非总是如此，Scala看起来势头很猛，不过不要忘记它的市场占有率，其实还是很小的。另一方面，也不要长久以来一直使用同样的技术，比如那些COBOL或是PowerBuilder开发者们。
+
+3.不是6个月，更不是10年
+不要每6个月就换一次工作。严肃地说，一个公司的很多人都会出现离职的情况，同时也会有新人加入进来。换句话说，不要在同一个地方，做相同的事情达到10年以上，否则你会与市场绝缘并形成惯性的。举个例子，假如你在IBM工作，那么要想保持自身的价值，你就不能仅仅满足于按照IBM的方式，使用IBM的技术栈来编写代码。我从来没有雇佣过在IBM等类似的公司中工作过2年以上的人。他们给我的印象常常是面试中表现很不错，不过在实际的编程中却败下阵来。
+
+2.开源
+不要相信那些关于开源的谎话。你们当中的那些年轻人可能已经记不起来过去有的开发者会失业的那种情况了，不过即便在经济不景气的时候，我创建的开源项目的所有开发者依然不会被裁员。请确保你所开发的开源代码能够反映出你的工作。我希望使用最简单的解决方案来解决难题，不过我面试了很多开发者，他们都将简单的问题给搞复杂了。无论你相信与否，这么做是有市场的，不过请确保你所编写的代码能够反映出你所在的市场。
+
+1.撰写博客
+搭一个博客，一个月写几篇文章。进行真正的研究，确保你所写的不是那种非常简单的东西。更严肃地说，就是要学会怎么写文章。根据学校的英语老师教你的方式来做：创建一个大纲、叙述、检查语法和拼音。接下来，简化刚才所写的东西，要做到让读你文章的人快速过一遍就能迅速掌握文章的要点。现在的互联网可是要做到精益求精才行。'),
+('0a1f5a6a-d786-41fe-8476-d2a1239b2023','23512T1C-0','如何在网页设计中使用留白？',GETDATE(),'09505dfb-c3f8-4585-af57-333ab7e8a7ad',3,'编者按：说起留白，很多奢华品牌网站都邪魅一笑：悄悄地用着，出声的不要。哼哼，偏偏不让你得逞，今天@十萬個為什麽 从留白的用色、可读性、搜索流畅度等方面跟童鞋们分享了留白的使用技巧，听我说，为了广大设计师的贴身福利，帮转一下吧 ლ(ಠ_ಠლ)
+
+@十萬個為什麽 ：所谓留白，有时也称作负空间，两者是同一个概念。尽管这个术语尤其指留“白”，但它所指的区域并不一定要是白色的。它只是网页布局中环绕各元素的空白空间。
+
+这样的空间体现为多种不同形式，例如图片、图表、缝隙、外边距、列甚至一行行文字之间的空间。尽管它似乎“空无一物”，里面没有任何其他设计元素占据一席之地，但我们不应该如此看待它。视之为“无物”，也许打造美感与表现力的机会就流失了。
+
+处理得当的话，留白确实可以为网页设计带来大量的益处。不应减少网页设计中的留白，相反，应该增加网页中的负空间。一些知名的大众品牌已经在朝这个方向前进，更多的设计师们也在追随他们的脚步.
+
+更多的留白，等同于更奢华的品牌与网站
+客户往往要求设计师尽可能用尽网页里的空间，因为网页中的空间是昂贵的，只有有限的屏幕来展示信息。无论如何，反其道而行之——增加留白——促使设计师在更严格约束的空间中，打造更加光鲜的品牌信息。
+
+另外，大家会觉得，留白更多的网站，它的内容比屏幕空间更重要。所以，品牌也显得更尽奢华，因为它牺牲了更多屏幕空间，反而将焦点汇聚在内容信息上。
+
+奢华的品牌了解这层隐喻，通常都使用更多留白来达到这一确切效果。PotteryBarn是个知名的高档家具零售商，它的网站很聪明地使用了留白，恰恰反映了这一点。留白支配了主页，页面旁边大片的留白，更好地将访问者的注意力集中在页面中间的交易与促销信息上。甚至页面顶部的品牌名称本身，也在字符之间慷慨地运用了留白。
+
+PotteryB​arn
+
+高端网站都懂的！如何在网页设计中使用留白
+留白提升搜索流畅度
+两大搜索引擎Google和Yahoo Search，诠释了留白简洁有效，这个简单的例子再适合不过了。
+
+Google准确地理解了一点，正在搜索某个话题的用户，不想被嘈杂的背景和广告分散注意力。因此，留白支配了整个Google搜索引擎页面，实际搜索框只占据页面中央窄窄一丝空间。类似的，Yahoo搜索也体现了使用留白的妙处。虽然这个页面顶部有长长一条菜单栏，理念还是相同的：大量的留白，使用户专注于搜索，别无他物。
+
+可读性和易读性得到应有的大幅提升
+用好留白，任何网站的可读性与易读性都会得到改善。如果一个页面上的文字过于拥挤，它就会妨碍舒适的阅读体验，从而阻碍整体用户体验。更多的留白使文字更易浏览，从而提升阅读体验，也更易理解。
+
+Information Highwayman是个掌握这项原则的个人站点，是D Bnonn Tennant——一名文案和市场专员的个人网站。擅长夸耀的他，知道什么样的网页内容对任何小本经营管用，令人欣慰的是，Tennant在他自己的网站上实践了他所宣扬的东西。标题的字间距、文字段落和菜单栏间距，有利于确保可读性和易读性。
+
+Information Highwayman
+高端网站都懂的！如何在网页设计中使用留白
+留白也可以用于不同内容区块之间，不只是为了提升阅读体验，也为了将内容分隔成不同部分，使得信息的吸收更加专注。Andrew
+Lucas的网站很好地展示了这一点。他是名伦敦的设计师，留白在他个人主页上运用得行之有效。
+
+AndrewLucas
+高端网站都懂的！如何在网页设计中使用留白
+它让颜色更鲜明
+也许留白最直接，尽管也是最简单的益处，就是突出网页中的其他色彩，使它们更加鲜艳。这点对于吸引访客目光大有帮助，因为颜色深浅、饱和度甚至浓度都更加突出。
+
+I Am Dan背后的设计师处理得非常棒，他在主页上使用稀疏的色彩，成为了这个概念的典范。他的网站简直就是零星几片红色分割开的留白。通过这种手段，红色突显了他作品集的链接，吸引访客浏览他的站点，有效地突出了他的网站，因此提高了访客响应召唤的几率。
+
+I Am Dan
+高端网站都懂的！如何在网页设计中使用留白
+Zurb是家网页设计公司，他们网站也体现了留白如何能突出色彩。它的特点是主页顶部单一的纯色和不同页面的彩色图标（就在虚线附近）。除了极少的颜色使用外，首页的整体设计以留白为主。
+
+Zurb
+高端网站都懂的！如何在网页设计中使用留白
+像绿色、橙色和红色这种简单的颜色，能够创造出令人愉快同时吸引注意的外观。上面提到两个网站，都采用了极简的用色方案，因为有如此大面积的留白。因此，用色非常机智得当，使用户赞赏有加。
+
+留白不是浪费空间
+网页设计师们越来越多抛弃之前的误解——认为设计页面时应该尽可能在屏幕内填塞每个元素、每种颜色。正如上面例子解释过的，留白被用于突出品牌内容、提升可读性与易读性、突显极简色彩时，展现出了强大的影响力。
+
+俗话说“少即是多”，不论你怎么看，它的确适用于关于留白的一切观点。广义上讲，网页设计中的这种极简处理方式，如今正越来越盛行，这项趋势肯定能持续下去。')
+insert into Notes values('0a3c0097-0ec8-4271-9e37-4b20de8136c3','defaultpic','DedeCMS 5.7提示“系统无此标签，可能已经移除”的解决方法',GETDATE(),'09505dfb-c3f8-4585-af57-333ab7e8a7ad',3,'前几天 用dedecms5.7sp1给朋友做了一个站，他想要tag的地址以中文的方式展示
+
+比如http://www.itbyc.com/tags?php/%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E%E4%BC%98%E5%8C%96/
+显示为：http://www.itbyc.com/tags/织梦系统/
+于是给他做了伪静态，然后伪静态时，我把include/taglib/tag.lib.php里边的的$row[''] = $cfg_cmsurl."/tags.php?/".urlencode($row[''])."/";
+改成了
+
+ $row[''] = $cfg_cmsurl."/tags/".($row[''])."/";
+把urlencode也去掉了，刚开始在本地是可以的，做完了把网站搬到服务器时，(他的服务器是Linux(centos)的)，发现dedecms tag有问题，老是提示： 
+系统无此标签，可能已经移除!
+你还可以尝试通过搜索程序去搜索这个关键字：前往搜索>>
+试了好多方法还是不行！
+
+但英文的又可以，我想肯定是编码有问题，上网查了下，果然如此，然后用了以下的方法完美解决了问题！
+
+解决dedecms 中文tag  系统无此标签，可能已经移除! 方法如下：
+先在根目录下找到tags.php打开后将以下代码注释掉：
+
+$tag = trim($_SERVER['']);
+
+　找到上面一行，把他注释了，然后添加这行
+$tag = strtolower(trim($_SERVER['']));
+这句的意思是判断UTF8编码的字符，如果是UTF8则转换为GBK！
+
+此时你再刷新，如果还不行，那么重来！把上面添加的删了，取消注释（不同的服务器可能出现的情况不一样，所以有两种解决办法）
+ 
+
+第一步、打开tags.php，在$tag = trim($_SERVER['']);下面添加下面的代码，切记是下面，否则不行
+
+function is_utf8($tag) 
+{ 
+if (preg_match("/^([".chr(228)."-".chr(233)."]{1}[".chr(128)."-".chr(191)."]{1}[".chr(128)."-".chr(191)."]{1}){1}/",$tag) == true || preg_match("/([".chr(228)."-".chr(233)."]{1}[".chr(128)."-".chr(191)."]{1}[".chr(128)."-".chr(191)."]{1}){1}$/",$tag) == true || preg_match("/([".chr(228)."-".chr(233)."]{1}[".chr(128)."-".chr(191)."]{1}[".chr(128)."-".chr(191)."]{1}){2,}/",$tag) == true) 
+{ 
+return true; 
+} 
+else 
+{ 
+return false; 
+} 
+}
+第二步、在$tag = FilterSearch(urldecode($tag));添加下面一句，切记是上面，否则失败
+
+if(is_utf8($tag)==1) { $tag = iconv("utf-8","gbk",$tag); }
+这个作用就是调用上面的函数判断编码 如果是 utf8则转为gbk！
+
+如果你现在保存刷新的话，中文是可以了，但是部分tag还是会出错的，
+
+比如：JvavScript  SEO  等等这样子的（区分大小写），所以还差最后一步
+
+最后一步、把$tag = FilterSearch(urldecode($tag));注释了，添加下面的这行
+
+$tag = urldecode($tag);
+也就是去掉 FilterSearch(）；
+
+此时、dedecms提示 系统无此标签，可能已经移除!的问题就解决了，还有不懂的可以在下面留言，我会及时的给你们答复！')
+insert into Notes values('0a85eeab-a555-4ea7-a176-38d1afaac19e','1-1501010TK5394','2014，感谢有你',GETDATE(),'09505dfb-c3f8-4585-af57-333ab7e8a7ad',3,'014的最后一个小时，时间，请等一下！
+记得一年前的这个时候，我也写了一篇关于我对我2014的期待，当时写的很简单，后面自己在便签里也写了很多愿望，基本上，他们都实现了……2014，也有很多我想打自己的地方……
+2014，感谢有你
+2014，努力的人，总是最美，最帅！
+2014，有了一个很爱我的明媚女子，她会在我累的时候给我一个大大的拥抱，她能读懂我的每一个眼神……
+2014，学了不少新的东西，接受了很多新的挑战，而且很幸运的是，这些挑战都成功了！
+2014，去了很多我从小就想去的地方，有过很多第一次，也算是人生的一些突破！
+2014，结识了很多圈子里了边还算不错的师友，也收集了很多有用的资源！
+2014，工作还算顺利！
+2014，太过自负，太过猖狂……
+2014，还是管不住自己的嘴，说了很多不该说的……
+2014，还是管不住自己的心，做了很多不该做的……
+2014，心太乱，目光太短……
+2014，也有很多很多遗憾……
+最大的遗憾的是，一直想跟秋穷游大理丽江，一直因为各种原因一拖再拖，
+2014，也有很多自责……
+说好的坚持学习，却在年底的时候懒了下来……
+说好要把自己的博客要像模像样，却变得鬼迷日眼……
+说好的要虚心学习，却……
+……
+
+2014...................................................................
+2014，感谢身边的每一个人，
+特别感谢一直包容，鼓励，打击，鼓励，支持……………………我的你
+2014……有很多说不完的感动，有很多写不完的事情……
+2014，还有很多很多…… 
+2014，感谢有你
+2014，感谢有你
+
+2014，感谢有你
+最后希望我的2015……
+珍惜。感恩。感谢。反思。执着。冷静。思考。....
+少说多做，谦虚慎行…… 
+
+做个有理想的青年　知道抬头　知道前进　相信自己会有美好未来 
+
+坚持所想，可以不被世俗磨成那平淡模样  
+ 
+受得起多大赞美　就经得起多大的诋毁 ……
+ 
+要用平常心去面对生活所给你的一切不骄不躁……
+
+没有目标的生活是索然无味的 所以 一旦选择了前往 就要义无反顾 懂坚持 有胆量 而且还要有主见 不要让自己成为随便的人 桎梏住我们的，一直是那颗不敢狂妄的心
+
+走边回望 且行且珍惜……')
+insert into Notes values('0ad3a873-f357-4f38-a9ff-a0f7de3522c0','defaultpic','网站跳出率高的优化方案',GETDATE(),'09505dfb-c3f8-4585-af57-333ab7e8a7ad',3,'本文给大家分享一个网站跳出率高的优化的实例，每个用户都会向我们提供重要的SEO数据，我们可以通过百度站长平台和网站后台，分析筛选出这些用户数据，就可以知道是什么原因导致了网站跳出率高的问题！
+当一个用户点击网站页面，没有点击任何连接，那网站的跳出率就是百分之百。通过页面优化，降低了页面跳出率，也就提升了页面质量。
+我们通过某个精油网站的案例来分析 
+我们找到一个《护发精油的使用方法》的页面，看看这个页面是如何降低跳出率的。
+主要有两点：
+1 .内容质量要很好。
+内容要从用户角度出发，解决用户的问题。如果内容不能他解决问题，他不会点击任何连接，因为这样的内容不是他想要的 。
+2 .关键词越长用户的需求就越精准。
+案例网站的竞争对手虽然内容有护发精油，但并没有给用户解决使用方法的问题。分析第二名的网站，虽然有类似文章，但是文章里面大量的文字连接，用户体验并不好。而且内容也不能解决用户问题。
+精油之恋网：根据发质选择精油，虽然也有大量的内容，这是用户需要的地方，就要做内链。最内链解释也是为了降低跳出率。让用户有需要的时候，有内链出现。油性的，干性的，1、内容要能解决标题的内容。（相关性）
+什么时候做内链，要看这个地方需不需要解释。2、页面里面有专业术语的时候，必须做内链。因为用户不知道你的专业词是啥意思。
+相关阅读  一定要做相关阅读，给用户做推荐。
+
+网站下面有个精油爱好者交流群 新用户的跳出率很高，他们不愿意到网站里面花很长时间找出内容。这样降低跳出率。新用户不能及时转变成老用户，这样网站的用户量会降低的。我们这样做，就能把那些什么链接都没有点击的用户，能留在qq群里面。百度根据跳出率，页面平均停留时间，浏览量 这些来判断页面的数据。数据有用，我们要懂得累积资源，当您有这样的用户资源，整理一些最信息价值的文章，只要我们发这样的文章到qq群里面，我们就能把qq群的流量引入到网站里面，把网站的用户引入到qq群里面，这了是提升排名的因素之一。
+稀缺性越高，所得的权重越高。
+优化的工作分3个部分
+1、最低层的页面代码的优化  这是搜索引擎抓取的基础
+2、体验和需求方面的优化  是图文还是视频 还是文字  解决什么样的需求，用什么样的内容。信息站、医疗站要以文字为主，图片为辅。还要通过页面点击图，看用户成交的原因是什么。
+3、熟练掌握前2种的基础上，  影响关键词排名的算法有200多项，都要熟练掌握。
+相关阅读 这里我们要根据用户的需求来调配 为什么第一个页面的相关阅读有6个，第二个页面有3个，这里是可以手动添加，这里的长尾词优化是根据情况来定，根据用户需求多少而变动。一周一次进行调整，还是一个月调整一次，不了解数据的人都不知道如何做，系统的学习数据分析。
+丝柏精油这里的相关阅读有3个 护发精油的相关 阅读有6个。当丝柏精油的用户需求增长后，我们可以增加更多。
+写在最后
+网站优化还要有营销的策略！')
+insert into Notes values('0af6aa09-5ed5-4b3d-b292-738cc85ab63d','1-141103155AS52','使用jQuery+PHP+Mysql实现PHP抽奖程序',GETDATE(),'09505dfb-c3f8-4585-af57-333ab7e8a7ad',3,'抽奖程序在实际生活中广泛运用，由于应用场景不同抽奖的方式也是多种多样的。本文将采用实例讲解如何利用jQuery+PHP+Mysql实现类似电视中常见的一个简单的PHP抽奖程序。
+使用jQuery+PHP+Mysql实现抽奖程序
+本例中的抽奖程序要实现从海量手机号码中一次随机抽取一个号码作为中奖号码，可以多次抽奖，被抽中的号码将不会被再次抽中。抽奖流程：点击“开始”按钮后，程序获取号码信息，滚动显示号码，当点击“停止”按钮后，号码停止滚动，这时显示的号码即为中奖号码，可以点击“开始”按钮继续抽奖。
+
+HTML
+<div id="roll"></div><input type="hidden" id="mid" value=""> 
+<p><input type="button" class="btn" id="start" value="开始">  
+<input type="button" class="btn" id="stop" value="停止"></p> 
+<div id="result"></div> 
+上述代码中，我们需要一个#roll用来显示滚动号码，#mid是用来记录抽中的号码id，然后就是需要两个按钮分别用来“开始”和“停止”动作，最后还需要一个#result显示抽奖结果。
+
+CSS
+我们使用简单的css来修饰html页面。
+
+.demo{width:300px; margin:60px auto; text-align:center} 
+#roll{height:32px; line-height:32px; font-size:24px; color:#f30} 
+.btn{width:80px; height:26px; line-height:26px; background:url(btn_bg.gif) 
+ repeat-x; border:1px solid #d3d3d3; cursor:pointer} 
+#stop{display:none} 
+#result{margin-top:20px; line-height:24px; font-size:16px; text-align:center} 
+注意，我们默认将按钮#stop设置为display:none，是为了一开始只显示“开始”按钮，点击“开始”后，抽奖进行中，将显示“停止”按钮。
+
+jQuery
+我们首先要实现的是点击“开始”按钮，通过ajax从后台获取抽奖用的数据即手机号码，然后通过定时滚动显示手机号码，注意每次显示的手机号码是随机的，也就是说不是按照某种顺序出现的，我们看下面的代码：
+
+$(function(){ 
+    var _gogo; 
+    var start_btn = $("#start"); 
+    var stop_btn = $("#stop"); 
+     
+    start_btn.click(function(){ 
+        $.getJSON('',function(json){ 
+            if(json){ 
+                var obj = eval(json);//将JSON字符串转化为对象 
+                var len = obj.length; 
+                _gogo = setInterval(function(){ 
+                    var num = Math.floor(Math.random()*len);//获取随机数 
+                    var id = obj[num]['']; //随机id 
+                    var v = obj[num]['']; //对应的随机号码 
+                    $("#roll").html(v); 
+                    $("#mid").val(id); 
+                },100); //每隔0.1秒执行一次 
+                stop_btn.show(); 
+                start_btn.hide(); 
+            }else{ 
+                $("#roll").html 
+            } 
+        }); 
+    }); 
+}); 
+首先我们定义变量，方便后续调用。然后，当点击“开始”按钮后，页面向后台data.php发送Ajax请求，这里我们使用jqeury的getJSON来完成异步请求。当后台返回json数据时，我们通过通过eval() 函数可以将JSON字符串转化为对象obj，其实就是将json数据转换为数组了。这时，我们使用setInterval做一个定时器，定时器里需要做的工作是：随机获取数组obj中的手机号码信息，然后显示在页面上。然后每隔0.1运行定时器，这样就达到了滚动显示抽奖号码的效果。同时显示“停止”按钮，隐藏“开始”按钮，这时抽奖进行中。
+
+接下来看“停止”动作需要做的工作。
+
+ 
+    stop_btn.click(function(){ 
+        clearInterval(_gogo); 
+        var mid = $("#mid").val(); 
+        $.post("data.php?action=ok",{id:mid},function(msg){ 
+            if(msg==1){ 
+                var mobile = $("#roll").html(); 
+                $("#result").append("<p>"+mobile+"</p>"); 
+            } 
+            stop_btn.hide(); 
+            start_btn.show(); 
+        }); 
+    }); 
+当单击“停止”按钮，意味着抽奖结束。使用clearInterval()函数停止定时器，获取被抽中号码的id，然后通过$.post将选中号码id发送给后台data.php处理。应为被抽中的号码需要在数据库中标记。如果后台处理成功，前端将中奖号码追加到中奖结果中，同时隐藏“停止”按钮，显示“开始”按钮，可以再次抽奖了。
+
+注意，我们使用setInterval()和clearInterval()设置定时器和停止定时器，关于这两个函数的使用大家可以google或百度下。
+
+PHP
+data.php需要做两件事，一，通过连接数据库，读取手机号码信息（不包好已中奖号码），然后通过转换成json格式输出给前端；二，通过接收前端请求，修改对应的数据库中的中奖号码状态，即标识该号码已中奖，下次将不再作为抽奖号码。
+
+include_once(''); //连接数据库 
+ 
+$action = $_GET['']; 
+if($action==""){ //读取数据，返回json 
+    $query = mysql_query("select * from member where status=0"); 
+        while($row=mysql_fetch_array($query)){ 
+        $arr[] = array( 
+            '' => $row[''], 
+            '' => substr($row[''],0,3)."****".substr($row[''],-4,4) 
+        ); 
+    } 
+    echo json_encode($arr); 
+}else{ //标识中奖号码 
+    $id = $_POST['']; 
+    $sql = "update member set status=1 where id=$id"; 
+    $query = mysql_query($sql); 
+    if($query){ 
+        echo ''; 
+    } 
+} 
+我们可以看出，数据表member中有个字段叫status，这个字段是用来标识是否中奖。1表示已中奖，0表示未中奖。这个后台php程序就是操作数据库，然后返回对应的信息给前端。
+
+MYSQL
+最后将member表结构信息附上。
+
+CREATE TABLE `member` ( 
+  `id` int(11) NOT NULL auto_increment, 
+  `mobile` varchar(20) NOT NULL, 
+  `status` tinyint(1) NOT NULL default '', 
+  PRIMARY KEY  (`id`) 
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8; 
+关于PHP抽奖程序，根据不同的应用场合不同的需求，会有不同的表现')
+insert into Notes values('0b82bda8-ea6c-44d2-9945-e1b54b93ef0e','s','PHP+jQuery实现翻板抽奖',GETDATE(),'09505dfb-c3f8-4585-af57-333ab7e8a7ad',3,'在电视节目中有一种抽奖形式暂且叫做翻板抽奖，台上有一个墙面，墙面放置几个大方块，主持人或者抽奖者翻开对应的方块即可揭晓中奖结果。类似的抽奖形式还可以应用在WEB中，本文将使用PHP+jQuery为您讲解如何实现翻板抽奖程序。
+
+PHP+jQuery实现翻板抽奖
+翻板抽奖的实现流程：前端页面提供6个方块，用数字1-6依次表示6个不同的方块，当抽奖者点击6个方块中的某一块时，方块翻转到背面，显示抽奖中奖信息。看似简单的一个操作过程，却包含着WEB技术的很多知识面，所以本文的读者应该熟练掌握jQuery和PHP相关知识。
+
+HTML
+与本站上篇文章使用jQuery+PHP+Mysql实现抽奖程序不同的是，翻板抽奖不提供开始和结束抽奖按钮，抽奖者自己决定选取其中的某一个方块，来完成抽奖的，所以我们在页面中放置6个方块，并且用1-6来表示不同的方块。
+
+ 
+<ul id="prize"> 
+    <li class="red" title="点击抽奖">1</li> 
+    <li class="green" title="点击抽奖">2</li> 
+    <li class="blue" title="点击抽奖">3</li> 
+    <li class="purple" title="点击抽奖">4</li> 
+    <li class="olive" title="点击抽奖">5</li> 
+    <li class="brown" title="点击抽奖">6</li> 
+</ul> 
+<div><a href="#" id="viewother">【翻开其他】</a></div> 
+<div id="data"></div> 
+html结构中，我们使用一个无序列表放置6个不同的方块，每个li中的clas属性表示该方块的颜色，列表下面是一个链接a#viewother，用来完成抽奖后，点击它，翻看其他方块背面的中奖信息，默认是隐藏的。接下来还有一个div#data，它是空的，作用是用来临时存储未抽中的其他奖项数据，具体情况看后面的代码。为了让6个方块并排看起来舒服点，您还需要用CSS来美化下，具体可参照demo，本文中不再贴出css代码。
+
+PHP
+我们先完成后台PHP的流程，PHP的主要工作是负责配置奖项及对应的中奖概率，当前端页面点击翻动某个方块时会想后台PHP发送ajax请求，那么后台PHP根据配置的概率，通过概率算法给出中奖结果，同时将未中奖的奖项信息一并以JSON数据格式发送给前端页面。
+
+先来看概率计算函数
+
+function get_rand($proArr) { 
+    $result = ''; 
+ 
+    //概率数组的总概率精度 
+    $proSum = array_sum($proArr); 
+ 
+    //概率数组循环 
+    foreach ($proArr as $key => $proCur) { 
+        $randNum = mt_rand(1, $proSum); 
+        if ($randNum <= $proCur) { 
+            $result = $key; 
+            break; 
+        } else { 
+            $proSum -= $proCur; 
+        } 
+    } 
+    unset ($proArr); 
+ 
+    return $result; 
+} 
+上述代码是一段经典的概率算法，$proArr是一个预先设置的数组，假设数组为：array(100,200,300，400)，开始是从1,1000这个概率范围内筛选第一个数是否在他的出现概率范围之内， 如果不在，则将概率空间，也就是k的值减去刚刚的那个数字的概率空间，在本例当中就是减去100，也就是说第二个数是在1，900这个范围内筛选的。这样筛选到最终，总会有一个数满足要求。就相当于去一个箱子里摸东西，第一个不是，第二个不是，第三个还不是，那最后一个一定是。这个算法简单，而且效率非常高，关键是这个算法已在我们以前的项目中有应用，尤其是大数据量的项目中效率非常棒。
+
+接下来我们通过PHP配置奖项。
+
+$prize_arr = array( 
+    '' => array(''=>1,''=>'',''=>1), 
+ 
+中是一个二维数组，记录了所有本次抽奖的奖项信息，其中id表示中奖等级，prize表示奖品，v表示中奖概率。注意其中的v必须为整数，你可以将对应的奖项的v设置成0，即意味着该奖项抽中的几率是0，数组中v的总和（基数），基数越大越能体现概率的准确性。本例中v的总和为100，那么平板电脑对应的中奖概率就是1%，如果v的总和是10000，那中奖概率就是万分之一了。
+
+每次前端页面的请求，PHP循环奖项设置数组，通过概率计算函数get_rand获取抽中的奖项id。将中奖奖品保存在数组$res['']中，而剩下的未中奖的信息保存在$res['']中，最后输出json个数数据给前端页面。
+
+foreach ($prize_arr as $key => $val) { 
+    $arr[$val['']] = $val['']; 
+} 
+ 
+$rid = get_rand($arr); //根据概率获取奖项id 
+ 
+$res[''] = $prize_arr[$rid-1]['']; //中奖项 
+unset($prize_arr[$rid-1]); //将中奖项从数组中剔除，剩下未中奖项 
+shuffle($prize_arr); //打乱数组顺序 
+for($i=0;$i<count($prize_arr);$i++){ 
+    $pr[] = $prize_arr[$i]['']; 
+} 
+$res[''] = $pr; 
+echo json_encode($res); 
+直接输出中奖信息就得了，为何还要把未中奖的信息也要输出给前端页面呢？请看后面的前端代码。
+
+jQuery
+首先为了实现翻板效果，我们需要预先加载翻动插件及jquery，jqueryui相关插件：
+
+<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script> 
+<script type="text/javascript" src="js/jquery-ui-1.7.2.custom.min.js"></script> 
+<script type="text/javascript" src="js/jquery.flip.min.js"></script> 
+关于flip插件您可以到其官网：http://lab.smashup.it/flip/了解更多信息。
+
+接下来，我们通过单击页面中的方块，来完成抽奖行为。
+
+$(function(){ 
+    $("#prize li").each(function(){ 
+        var p = $(this); 
+        var c = $(this).attr(''); 
+        p.css("background-color",c); 
+        p.click(function(){ 
+            $("#prize li").unbind(''); 
+            $.getJSON("data.php",function(json){ 
+                var prize = json.yes; //抽中的奖项 
+                p.flip({ 
+                    direction:'', //翻动的方向rl：right to left 
+                    content:prize, //翻转后显示的内容即奖品 
+                    color:c,  //背景色 
+                    onEnd: function(){ //翻转结束 
+                        p.css({"font-size":"22px","line-height":"100px"}); 
+                        p.attr("id","r"); //标记中奖方块的id 
+                        $("#viewother").show(); //显示查看其他按钮 
+                        $("#prize li").unbind('') 
+                        .css("cursor","default").removeAttr("title"); 
+                    } 
+                }); 
+                $("#data").data("nolist",json.no); //保存未中奖信息 
+            }); 
+        }); 
+    }); 
+}); 
+代码中先遍历6个方块，给每个方块初始化不同的背景颜色，单击当前方块后，使用$.getJSON向后台data.php发送ajax请求，请求成功后，调用flip插件实现翻转方块，在获取的中奖信息显示在翻转后的方块上，翻转结束后，标记该中奖方块id，同时冻结方块上的单击事件，即unbind('')，目的就是让抽奖者只能抽一次，抽完后每个方块不能再翻动了。最后将未抽中的奖项信息通过data()储存在#data中。
+
+其实到这一步抽奖工作已经完成，为了能查看其他方块背面究竟隐藏着什么，我们在抽奖后给出一个可以查看其他方块背面的链接。通过点击该链接，其他5个方块转动，将背面奖项信息显示出来。 
+
+$(function(){ 
+    $("#viewother").click(function(){ 
+        var mydata = $("#data").data("nolist"); //获取数据 
+        var mydata2 = eval(mydata);//通过eval()函数可以将JSON转换成数组 
+              
+        $("#prize li").not($('')[0]).each(function(index){ 
+            var pr = $(this); 
+            pr.flip({ 
+                direction:'', 
+                color:'', 
+                content:mydata2[index], //奖品信息（未抽中） 
+                onEnd:function(){ 
+                    pr.css({"font-size":"22px","line-height":"100px","color":"#333"}); 
+                    $("#viewother").hide(); 
+                } 
+            }); 
+        }); 
+        $("#data").removeData("nolist"); 
+    }); 
+}); 
+当单击#viewother时，获取抽奖时保存的未抽中的奖项数据，并将其转化为数组，翻转5个方块，将奖品信息显示在对应的方块中。最终效果图：
+
+PHP+jQuery实现翻板抽奖
+
+为什么我抽不到大奖？
+在很多类似的抽奖活动中，参与者往往抽不到大奖，笔者从程序的角度举个例给你看，假如我是抽奖活动的主办方，我设置了6个奖项，每个奖项不同的中奖概率，假如一等奖是一台高级轿车，可是我设置了其中奖概率为0，这意味着什么？这意味着参与抽奖者无论怎么抽，永远也得不到这台高级轿车。而当主办方每次翻动剩下的方块时，参与者会发现一等奖也许就在刚刚抽奖的方块旁边的一个数字下，都怪自己运气差。真的是运气差吗？其实在参与者翻动那个方块时程序已经决定了中奖项，而翻动查看其他方块看到的奖项只是一个烟雾弹，迷惑了观众和参与者。我想看完这篇文章后，您或许会知道电视节目中的翻板抽奖猫腻了，您也许大概再不会去机选双色球了。
+
+BUG修复：感谢热心网友寒川和Tears反馈的关于可以连续翻动的bug，解决办法，在单击事件后，ajax前限制click事件插入代码：
+
+$("#prize li").unbind('');')
+insert into Notes values('0bbeee65-0969-4e48-9daa-36fd7c8d4270','1-141103154406263-lp','php抽奖程序-jQuery+PHP实现幸运大转盘抽奖程序',GETDATE(),'09505dfb-c3f8-4585-af57-333ab7e8a7ad',3,'网上有很多在线抽奖的程序，大转盘抽奖，摇一摇抽奖，随机数抽奖等等多种多样，目前好多网站上应用的转盘抽奖程序大多是基于flash的，本文结合实例使用jQuery+PHP来实现PHP抽奖程序！
+
+ 
+源码下载
+
+首先要准备素材，抽奖的界面用到两张图片，圆盘图片和指针图片，实际应用中可以根据不同的需求制作不同的圆盘图片。
+
+接着制作html页面，实例中我们在body中加入如下代码：
+
+<div class="demo">
+    <div id="disk"></div>
+    <div id="start"><img src="start.png" id="startbtn"></div>
+</div>
+我们用#disk来放置圆盘背景图片，在css中控制，用#start来放置指针图片start.png。
+
+然后我们使用CSS来控制指针和圆盘的位置，代码如下：
+
+.demo{width:417px; height:417px; position:relative; margin:50px auto}
+#disk{width:417px; height:417px; background:url(disk.jpg) no-repeat}
+#start{width:163px; height:320px; position:absolute; top:46px; left:130px;}
+#start img{cursor:pointer}
+jQuery
+要想让指针转动起来，如果不借助flash的话，我们可以使用html5的canvas实现图片的旋转，但是需要考虑浏览器兼容性，而一款jQuery插件完全可以实现图片（任意html元素）旋转并兼容各大浏览器，它就是jQueryRotate.js。
+
+使用jQueryRotate.js可以将图片旋转任意角度，可以绑定鼠标事件，可以设置旋转过程动画效果以及callback回调函数。
+
+使用方法当然是先在head中载入jquery库文件以及jQueryRotate.js，然后我们使用以下代码就可以实现指针转动了。
+
+$(function(){
+	$("#startbtn").rotate({
+		bind:{
+			click:function(){//绑定click单击事件
+				 var a = Math.floor(Math.random() * 360); //生成随机数
+				 $(this).rotate({
+					 	duration:3000,//转动时间间隔（转动速度）
+					 	angle: 0,  //开始角度
+            			animateTo:3600+a, //转动角度，10圈+
+						easing: $.easing.easeOutSine, //动画扩展
+						callback: function(){ //回调函数
+							alert('');
+						}
+				 });
+			}
+		}
+	});
+});
+上面的代码实现了：当单击指针“开始抽奖”按钮，指针开始转动，转动角度为3600+a，即10圈后再转动随机产生的a角度，当转动角度到达3600+a度时停止转动。
+
+需要注意的是，easing：动画扩展我们需要结合动画扩展插件才能实现。关于easing插件在这篇文章中有介绍：jQuery Easing 动画效果扩展
+
+本文到此已完成了转盘转动指针的过程，但是需要结合抽奖控制才算一个完整的抽奖程序，结下来介绍使用PHP来控制抽奖几率，以及如何应用jQuery与PHP完成抽奖的交互过程。
+
+使用PHP结合jQuery完成整个php抽奖程序抽奖过程
+我们只需要在php文件中设置转盘对应的角度和奖项，以及每个奖项对应的中奖几率，运用概率算法，使得抽奖结果符合后台设置的中奖几率。')
+insert into Notes values('0bcf1e05-58aa-4e3c-a9e8-2a152fe700b4','defaultpic','PHP动态页生成静态页的程序代码',GETDATE(),'09505dfb-c3f8-4585-af57-333ab7e8a7ad',3,'分享一下PHP动态页生成静态页的程序代码，生成静态页的页面非常的简单就是定义好模板与模板标题，之后利用str_replace进行替换了,是最常用的方法，另一种是利用ob_get_contents输出获得然后生成html，还有一种不怎么推荐的是使用file_get_contents直接执行访问远程文件然后进行保存，性能极差。
+方法简单说明如下：
+1．使用文件函数得到静态页面的模板字符串，然后用str_replace函数将需要替换的东西替换了再写入到新的文件中。
+2． 利用PHP的输出控制函数（Output Control）得到静态页面字符串，再写入到新的文件中。
+$filemodel="template/it.php";           #模板地址
+$file=fopen($filemodel,"rb");           #打开模板，得到文件指针
+$temp=fread($file,filesize($filemodel));    #得到模板文件html代码
+方法一：ob_get_contents()
+这是一种很方便的方法，也是很常用的方法，实现原理是：首先打开缓存，然后创建相应的静态页文件，写入缓存的内容，清空缓存。
+示例：
+ob_strart();#打开缓冲区
+$fn=date('').rand(1000,9999).'';//生成文件名
+require("supply.php");#载入要生成静态页的文件，因为后台有ob_clen()所以在不会显示出来
+$fs=fopen($fn,'');#打开静态页文件
+fwrite($fs,ob_get_contents());#生成静态文件
+ob_clean();#清空缓存
+方法二：file_get_contents();
+$fn=date('').rand(1000,9999).'';
+$url= ''.$_SERVER['']."/";#注意
+$content=file_get_contents($url);
+$fs=fopen($fn,'');
+fwrite($fs,$content);
+下面对上面的注意进行一下解释，如果在些你使用的是仅仅是文件名，而不是URL那么您这个文件中如果有使用引用文件比如require (‘header.php’); 那么header.php中的内容将会显示不出来。
+方法三：str_replace()
+$filemodel="supply.php"; 　　字串5$file=fopen($filemodel,"w+");
+$temp=fread($file,filesize($filemodel));
+$temp=str_replace("[title]",$title,$temp);
+$temp=str_replace("[postTime]",$postTime,$temp);
+$temp=str_replace("[content]",$content,$temp);
+该方法适用于很简单的页面，如果supply.php中有使用引用文件比如require (‘header.php’);那么header.php中的内容将会显示不出来
+在实际应用中，您可以写一个生成静态页的类，
+/*+++
+|
+| Author :陈毓端
+| 使用方法
+|   $shtml = new Shtml($Url,$FileBag,$FolderName,$fileid)
+|   $Url：       页面 URL 地址
+|   $FileBag：   文件夹标记   1 为：指定文件夹
+|         2 为：默认文件夹(时间(年月日))
+|        $FolderRoot html文件存放路径
+|   $FolderName 指定文件夹的名称 $FileBag为2时 可以写为空("");
+|   $fileid      静态页面名称(后缀 默认为 .html)
+|   
+|
+|
+/*++*/
+
+class Shtml
+
+var $message1="Error    1: You write class Shtml is Wrong !   The second parameter is 1 or 2 in   this class!.";
+var $message2="Error    2: The file write    Error.";
+function __construct ($Url,$FileBag,$FolderRoot,$FolderName,$fileid)
+
+$this->Url   = $Url;
+$this->FileBag   = $FileBag;
+$this->FileRoot = $FolderRoot;
+$this->FileName = $FolderName;
+$this->fileid    = $fileid;
+Shtml::useFolder ();
+
+/*************获取数据*******************/
+public function loadcontent ($Folder)
+{  
+ob_start();
+require_once $this->Url;
+Shtml::writehtml ($Folder,ob_get_contents());
+ob_clean();
+
+/********** 指定文件夹*****************/
+public function useFolder ()
+{   
+if($this->FileBag==1)
+
+$Folder=$this->FileName;
+
+else if($this->FileBag==2)
+
+$Folder=date('',time());
+
+else
+
+exit($this->message1);
+
+if(!is_dir($this->FileRoot.$Folder)){ mkdir($this->FileRoot.$Folder,0700);}
+Shtml::loadcontent ($Folder);
+
+/********** 生成静态页面*****************/
+public function writehtml ($Folder,$cache_value)
+{  
+$file   = fopen($this->FileRoot.$Folder.''.$this->fileid.'','');
+fwrite($file,$cache_value);
+fclose($file);
+
+
+$fileid=2;
+$shtml = new Shtml("http://itbyc.com",1,"","cc",$fileid);')
+select * from Notes
+go
+create procedure NotePage
+@pageIndex int,
+@pageCount int=10,
+@pageTotalCount int output
+as
+begin
+  --计算出总页数
+  declare @totalData int;
+  set @totalData=(select count(*) from Notes)
+  set @pageTotalCount=Ceiling(@totalData*1.0/@pageCount);
+  --得到数据
+  select * from
+  (select *,num=row_number() over(order by NotesID) from Notes) as t
+   where t.num between 
+    @pageCount * (@pageIndex-1)+1 and @pageCount* @pageIndex;
+end
+go
+DECLARE @Pages int
+exec NotePage 4,3,@Pages output
+select @Pages

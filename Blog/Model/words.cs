@@ -10,12 +10,12 @@ namespace Model
         /// <summary>
         /// 属性：留言ID
         /// </summary>
-        public string wordID { get; set; }
+        public string WordID { get; set; }
 
         /// <summary>
         /// 属性：留言时间
         /// </summary>
-        public DateTime worddate { get; set; }
+        public DateTime Worddate { get; set; }
 
         /// <summary>
         /// 属性：留言人ID
@@ -25,12 +25,12 @@ namespace Model
         /// <summary>
         /// 属性：留言内容
         /// </summary>
-        public string wordContent { get; set; }
+        public string WordContent { get; set; }
 
         /// <summary>
         /// 属性：留言是否正确
         /// </summary>
-        public int wordState { get; set; }
+        public int WordState { get; set; }
 
         /// <summary>
         /// 无参构造函数
@@ -48,10 +48,10 @@ namespace Model
         public words(string id, DateTime dateTime, string userid, string content, int wordstate)
         {
             this.UserID = id;
-            this.worddate = dateTime;
+            this.Worddate = dateTime;
             this.UserID = userid;
-            this.wordContent = content;
-            this.wordState = wordState;
+            this.WordContent = content;
+            this.WordState = WordState;
         }
     }
 }

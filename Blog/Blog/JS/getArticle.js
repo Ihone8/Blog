@@ -1,6 +1,6 @@
 ﻿(function ($) {
     $.getJSON("../SQLData/GetArticle.ashx", function (data) {
-        console.log(data);
+        //console.log(data);
         $.each(data, function (i, obj) {
             $("#bloglist").append("<h2><a title=" + obj.ArticleTitle + " href='#' target='_blank'>" + obj.ArticleTitle + "</a></h2>");
             $("#bloglist").append("<ul style='margin-bottom:5px;'><li style='list-style-type: none;padding-bottom:-5px;'><p style='text-indent: 2em;height: 48px;overflow:hidden;'>" + obj.ArticleContent.substring(1, 100) + "...........</p></li>");

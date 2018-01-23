@@ -41,7 +41,9 @@
   <ItemGroup>
     <Compile Include="ArticleBLL.cs" />
     <Compile Include="Class1.cs" />
+    <Compile Include="NotesBLL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WordsBLL.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Blog_DAL\Blog_DAL.csproj">

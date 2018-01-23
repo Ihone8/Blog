@@ -73,7 +73,9 @@ create table words
 	wordContent varchar(max) not null,
 	wordState int default(0) not null,
 )
-
+select * from words
+insert into words values(@wordID,@worddate,@UserID,@wordContent,@wordState)
+delete from words where wordID =@wordID 
 select * from [User]
 select * from [Admin]
 select U.UserName,T.TypeName,A.* from [Article] A left join ArticleType T on A.ArticleTypeID=T.ID left join [User] U on A.UserID=A.UserID

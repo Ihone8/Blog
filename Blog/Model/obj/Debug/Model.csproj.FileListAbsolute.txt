@@ -3,4 +3,3 @@ E:\个人毕业项目\Blog\Model\bin\Debug\Model.pdb
 E:\个人毕业项目\Blog\Model\obj\Debug\Model.csproj.CoreCompileInputs.cache
 E:\个人毕业项目\Blog\Model\obj\Debug\Model.dll
 E:\个人毕业项目\Blog\Model\obj\Debug\Model.pdb
-E:\个人毕业项目\Blog\Model\obj\Debug\Model.csprojResolveAssemblyReference.cache
